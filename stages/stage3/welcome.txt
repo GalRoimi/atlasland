@@ -1,0 +1,19 @@
+      _     _ _     _ _             _             
+  ___| |__ (_) | __| ( )___   _ __ | | __ _ _   _ 
+ / __| '_ \| | |/ _` |// __| | '_ \| |/ _` | | | |
+| (__| | | | | | (_| | \__ \ | |_) | | (_| | |_| |
+ \___|_| |_|_|_|\__,_| |___/ | .__/|_|\__,_|\__, |
+                             |_|            |___/ 
+
+Looks like someone thought this was going to be a piece of cake!
+I hope you haven't been banging your head against the wall too hard, because we're about to take things up a notch...
+Let's put your GDB skills to the test, shall we? 
+This time around, you'll need to show that program who's boss and dig up the dirt on the variable "secret". 
+Happy sleuthing!
+
+   ,=""=,
+  c , _,{
+  /\  @ )                 __
+ /  ^~~^\          <=.,__/ '}=
+(_/ ,, ,,)          \_ _>_/~
+ ~\_(/-\)'-,_,_,_,-'(_)-(_) 

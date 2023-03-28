@@ -1,0 +1,8 @@
+.vscode
+outputs/
+build/
+.obj/
+bin/
+*.bin
+*.o
+*.gen.*

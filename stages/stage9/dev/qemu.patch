@@ -1,0 +1,267 @@
+diff --git a/hw/arm/versatilepb.c b/hw/arm/versatilepb.c
+index ecc1f6cf74..cfb1e864c9 100644
+--- a/hw/arm/versatilepb.c
++++ b/hw/arm/versatilepb.c
+@@ -16,6 +16,7 @@
+ #include "hw/net/smc91c111.h"
+ #include "net/net.h"
+ #include "sysemu/sysemu.h"
++#include "sysemu/block-backend.h"
+ #include "hw/pci/pci.h"
+ #include "hw/i2c/i2c.h"
+ #include "hw/i2c/arm_sbcon_i2c.h"
+@@ -26,11 +27,26 @@
+ #include "hw/char/pl011.h"
+ #include "hw/sd/sd.h"
+ #include "qom/object.h"
++#include "qemu/units.h"
++#include "crypto/hash.h"
++#include "crypto/random.h"
++#include "qemu/crc32c.h"
+ 
+ #define VERSATILE_FLASH_ADDR 0x34000000
+ #define VERSATILE_FLASH_SIZE (64 * 1024 * 1024)
+ #define VERSATILE_FLASH_SECT_SIZE (256 * 1024)
+ 
++#define BOOTSTRAP_LOAD_ADDR 0x00010000
++#define BOOTLOADER_MAX_SIZE (4 * KiB)
++
++#define VERSATILE_PC_BOARD_ID   (0x291)
++
++#define SHA256_DIGEST_LEN (32)
++
++#define VERSATILE_PC_VERIFIER_SEED_REG_OFFSET (0x00)
++#define VERSATILE_PC_VERIFIER_READY_REG_OFFSET (0x04)
++#define VERSATILE_PC_VERIFIER_HASH_REG_OFFSET (0x08)
++
+ /* Primary interrupt controller.  */
+ 
+ #define TYPE_VERSATILE_PB_SIC "versatilepb_sic"
+@@ -172,6 +188,111 @@ static void vpb_sic_init(Object *obj)
+     sysbus_init_mmio(sbd, &s->iomem);
+ }
+ 
++#define TYPE_VERSATILE_PC_VERIFIER "versatilepc_verifier"
++OBJECT_DECLARE_SIMPLE_TYPE(vpc_verifier_state, VERSATILE_PC_VERIFIER)
++
++struct vpc_verifier_state {
++    SysBusDevice parent_obj;
++
++    MemoryRegion iomem;
++    uint32_t seed;
++    uint32_t crc;
++    uint8_t hash[SHA256_DIGEST_LEN];
++    uint8_t hash_result[SHA256_DIGEST_LEN];
++};
++
++static const VMStateDescription vmstate_vpc_verifier = {
++    .name = TYPE_VERSATILE_PC_VERIFIER,
++    .version_id = 1,
++    .minimum_version_id = 1,
++    .fields = (VMStateField[]) {
++        VMSTATE_UINT32(seed, vpc_verifier_state),
++        VMSTATE_UINT32(crc, vpc_verifier_state),
++        VMSTATE_UINT8_ARRAY(hash, vpc_verifier_state, SHA256_DIGEST_LEN),
++        VMSTATE_UINT8_ARRAY(hash_result, vpc_verifier_state, SHA256_DIGEST_LEN),
++        VMSTATE_END_OF_LIST()
++    }
++};
++
++static uint64_t vpc_verifier_read(void *opaque, hwaddr offset,
++                             unsigned size)
++{
++    vpc_verifier_state *s = (vpc_verifier_state *)opaque;
++
++    switch (offset) {
++    case VERSATILE_PC_VERIFIER_SEED_REG_OFFSET: /* SEED */
++        return s->seed;
++    case VERSATILE_PC_VERIFIER_READY_REG_OFFSET: /* READY */
++        if (memcmp(s->hash, s->hash_result, sizeof(s->hash)) == 0) {
++            return s->crc;
++        }
++
++        return 0;
++    default:
++        printf ("vpc_verifier_read: Bad register offset 0x%x\n", (int)offset);
++        return 0;
++    }
++}
++
++static void vpc_verifier_write(void *opaque, hwaddr offset,
++                          uint64_t value, unsigned size)
++{
++    vpc_verifier_state *s = (vpc_verifier_state *)opaque;
++
++    if (offset == VERSATILE_PC_VERIFIER_SEED_REG_OFFSET) {
++        return;
++    } else if (offset == VERSATILE_PC_VERIFIER_READY_REG_OFFSET) {
++        return;
++    } else if ((offset >= VERSATILE_PC_VERIFIER_HASH_REG_OFFSET) &&
++               (offset < VERSATILE_PC_VERIFIER_HASH_REG_OFFSET + SHA256_DIGEST_LEN) &&
++               (offset % sizeof(uint32_t) == 0)) {
++        *(uint32_t*)(s->hash + (offset - VERSATILE_PC_VERIFIER_HASH_REG_OFFSET)) = (uint32_t)value;
++    } else {
++        printf ("vpc_verifier_write: Bad register offset 0x%x\n", (int)offset);
++        return;
++    }
++}
++
++static const MemoryRegionOps vpc_verifier_ops = {
++    .read = vpc_verifier_read,
++    .write = vpc_verifier_write,
++    .endianness = DEVICE_NATIVE_ENDIAN,
++};
++
++static void vpc_verifier_init(Object *obj)
++{
++    vpc_verifier_state *s = VERSATILE_PC_VERIFIER(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    Error *err = NULL;
++    if (qcrypto_random_bytes(&s->seed, sizeof(s->seed), &err)) {
++        error_report("versatilepc: random generation failed");
++        exit(1);
++    }
++
++    uint8_t *result = NULL;
++    size_t resultlen = 0;
++    if (qcrypto_hash_bytes(QCRYPTO_HASH_ALG_SHA256, (const char*)&s->seed, sizeof(s->seed), &result, &resultlen, &err)) {
++        error_report("versatilepc: sha256 calculation failed");
++        exit(1);
++    }
++
++    if (resultlen != sizeof(s->hash_result)) {
++        error_report("versatilepc: sha256 size is invalid");
++        exit(1);
++    }
++
++    memcpy(s->hash_result, result, resultlen);
++    g_free(result);
++
++    memset(s->hash, 0, sizeof(s->hash));
++    s->crc = crc32c(0, (const uint8_t*)&s->seed, sizeof(s->seed));
++
++    memory_region_init_io(&s->iomem, obj, &vpc_verifier_ops, s,
++                          "vpc-verifier", 0x1000);
++    sysbus_init_mmio(sbd, &s->iomem);
++}
++
+ /* Board init.  */
+ 
+ /* The AB and PB boards both use the same core, just with different
+@@ -347,6 +468,10 @@ static void versatile_init(MachineState *machine, int board_id)
+     sysbus_mmio_map(SYS_BUS_DEVICE(pl041), 0, 0x10004000);
+     sysbus_connect_irq(SYS_BUS_DEVICE(pl041), 0, sic[24]);
+ 
++    if (board_id == VERSATILE_PC_BOARD_ID) {
++        sysbus_create_simple(TYPE_VERSATILE_PC_VERIFIER, 0x101f6000, NULL);
++    }
++
+     /* Memory map for Versatile/PB:  */
+     /* 0x10000000 System registers.  */
+     /* 0x10001000 PCI controller config registers.  */
+@@ -396,6 +521,50 @@ static void versatile_init(MachineState *machine, int board_id)
+     versatile_binfo.ram_size = machine->ram_size;
+     versatile_binfo.board_id = board_id;
+     arm_load_kernel(cpu, machine, &versatile_binfo);
++
++    if (board_id == VERSATILE_PC_BOARD_ID) {
++        if (versatile_binfo.kernel_filename == NULL) {
++            info_report("Booting from flash ...");
++
++            BlockBackend *blk = blk_by_legacy_dinfo(dinfo);
++            if (blk == NULL) {
++                error_report("versatilepc: failed to get pflash block device");
++                exit(1);
++            }
++
++            CPUState *cs = CPU(cpu);
++            AddressSpace *as = cpu_get_address_space(cs, ARMASIdx_NS);
++
++            uint8_t chunk[0x1000];
++            for (size_t i = 0; i < BOOTLOADER_MAX_SIZE; i += sizeof(chunk)) {
++                size_t amount_to_read = MIN(sizeof(chunk), BOOTLOADER_MAX_SIZE - i);
++
++                if (blk_pread(blk, i, amount_to_read, &chunk, 0) < 0) {
++                    error_report("versatilepc: failed to read from pflash at 0x%lx", i);
++                    exit(1);
++                }
++
++                MemTxResult res = address_space_write(as, BOOTSTRAP_LOAD_ADDR + i, MEMTXATTRS_UNSPECIFIED, &chunk, amount_to_read);
++                if (res != MEMTX_OK) {
++                    error_report("versatilepc: failed to write to ram at 0x%lx (res: %u)", BOOTSTRAP_LOAD_ADDR + i, res);
++                    exit(1);
++                }
++            }
++
++            versatile_binfo.is_linux = false;
++            versatile_binfo.entry = BOOTSTRAP_LOAD_ADDR;
++
++            cpu->env.boot_info = &versatile_binfo;
++        } else {
++            error_report("versatilepc: kernel option does not supported");
++            exit(1);
++        }
++    }
++}
++
++static void vpc_init(MachineState *machine)
++{
++    versatile_init(machine, VERSATILE_PC_BOARD_ID);
+ }
+ 
+ static void vpb_init(MachineState *machine)
+@@ -444,8 +613,27 @@ static const TypeInfo versatileab_type = {
+     .class_init = versatileab_class_init,
+ };
+ 
++static void versatilepc_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
++    mc->desc = "ARM Versatile/PC (ARM926EJ-S)";
++    mc->init = vpc_init;
++    mc->block_default_type = IF_SCSI;
++    mc->ignore_memory_transaction_failures = true;
++    mc->default_cpu_type = ARM_CPU_TYPE_NAME("arm926");
++    mc->default_ram_id = "versatile.ram";
++}
++
++static const TypeInfo versatilepc_type = {
++    .name = MACHINE_TYPE_NAME("versatilepc"),
++    .parent = TYPE_MACHINE,
++    .class_init = versatilepc_class_init,
++};
++
+ static void versatile_machine_init(void)
+ {
++    type_register_static(&versatilepc_type);
+     type_register_static(&versatilepb_type);
+     type_register_static(&versatileab_type);
+ }
+@@ -473,3 +661,25 @@ static void versatilepb_register_types(void)
+ }
+ 
+ type_init(versatilepb_register_types)
++
++static void vpc_verifier_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++
++    dc->vmsd = &vmstate_vpc_verifier;
++}
++
++static const TypeInfo vpc_verifier_info = {
++    .name          = TYPE_VERSATILE_PC_VERIFIER,
++    .parent        = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(vpc_verifier_state),
++    .instance_init = vpc_verifier_init,
++    .class_init    = vpc_verifier_class_init,
++};
++
++static void versatilepc_register_types(void)
++{
++    type_register_static(&vpc_verifier_info);
++}
++
++type_init(versatilepc_register_types)

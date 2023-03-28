@@ -1,0 +1,46 @@
+ _           _   _             __ _                           
+| |__  _   _| |_| |_ ___ _ __ / _(_)_ __   __ _  ___ _ __ ___ 
+| '_ \| | | | __| __/ _ \ '__| |_| | '_ \ / _` |/ _ \ '__/ __|
+| |_) | |_| | |_| ||  __/ |  |  _| | | | | (_| |  __/ |  \__ \
+|_.__/ \__,_|\__|\__\___|_|  |_| |_|_| |_|\__, |\___|_|  |___/
+                                          |___/               
+
+Oh boy, I've got some news that might burst your bubble - the last step was just a warm-up!
+But fear not, my dear friend, for now it's time to put your newfound `Challenge-Response` protocol knowledge to the test and get cracking once again!
+
+Uh-oh, I seem to have misplaced the binary for the program.
+It's like trying to find a needle in a haystack, but luckily we've got our trusty development environment to help us rebuild it from scratch!
+
+Hang on a sec, something's not quite right here... Did a tornado just hit our code?
+We were only able to recover some of the source files for the environment, and for the damaged files, all we could salvage were their objects files.
+
+Do you think you're up for the challenge of compiling the program and getting it to run?
+Let's hope so, because this time you'll need to make it run from address 0x10000.
+It's like a game of "Where's Waldo", but with computer code!
+
+Here's a reminder from the previous stage regarding the protocol:
+
+USER                                               MACHINE
+|                                                      |
+|                 HELLO OPCODE (0xaa)                  |
+|----------------------------------------------------->|
+|                                                      |
+|              NONCE (4 bytes, big-endian)             |
+|<-----------------------------------------------------|
+|                                                      |
+|      HMAC-SHA-256 (NONCE [little-endian], KEY)       |
+|----------------------------------------------------->|
+|                                                      |
+|______________________________________________________|
+
+ __      __
+( _\    /_ )
+ \ _\  /_ / 
+  \ _\/_ /_ _
+  |_____/_/ /|
+  (  (_)__)J-)
+  (  /`.,   /
+   \/  ;   /
+    | === |
+
+Just a friendly reminder - that first serial output is for i/o purposes, while the second output is for the protocol.

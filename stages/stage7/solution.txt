@@ -1,0 +1,1 @@
+qemu-system-arm -M versatilepb -nographic -kernel getting_warmer -serial mon:stdio -serial pty

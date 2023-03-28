@@ -1,0 +1,23 @@
+                                                   
+  ___  __ _ ___ _   _   _ __   ___  __ _ ___ _   _ 
+ / _ \/ _` / __| | | | | '_ \ / _ \/ _` / __| | | |
+|  __/ (_| \__ \ |_| | | |_) |  __/ (_| \__ \ |_| |
+ \___|\__,_|___/\__, | | .__/ \___|\__,_|___/\__, |
+                |___/  |_|                   |___/ 
+
+Oh boy, it's you again! You must really have a thing for punishment, my friend.
+This time around, the program you're gonna need to run on the ol' machine has some pretty pesky demands.
+
+In order to get the secret for the next stage, you'll need to provide the machine with a "flash memory" in the following structure:
+At address 0x000000dd, you gotta throw in the value "0x3294adee".
+At address 0x000012ab, you gotta plop in the value "0xaabbccdd".
+At address 0x000ba199, you gotta slap in the value "0x13141819".
+At address 0x008cc57b, you gotta fling in the value "0xff93532d".
+
+Don't worry, it's not rocket science. It's just memory science.
+Good luck!
+
+                            ( \---/ )
+                             ) . . (
+_______________________,--._(___Y___)_,--._______________________
+                       `--'           `--'

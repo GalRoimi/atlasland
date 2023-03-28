@@ -1,0 +1,16 @@
+[submodule "modules/mbedtls"]
+	path = modules/mbedtls
+	url = git@github.com:Mbed-TLS/mbedtls.git
+	ignore = dirty
+[submodule "modules/qemu"]
+	path = modules/qemu
+	url = git@github.com:qemu/qemu.git
+	ignore = dirty
+[submodule "modules/u-boot"]
+	path = modules/u-boot
+	url = git@github.com:u-boot/u-boot.git
+	ignore = dirty
+[submodule "modules/busybox"]
+	path = modules/busybox
+	url = git@github.com:mirror/busybox.git
+	ignore = dirty

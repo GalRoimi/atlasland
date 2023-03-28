@@ -1,0 +1,46 @@
+                        _   _               _                _        _       
+ _____      _____  __ _| |_(_)_ __   __ _  | |__  _   _  ___| | _____| |_ ___ 
+/ __\ \ /\ / / _ \/ _` | __| | '_ \ / _` | | '_ \| | | |/ __| |/ / _ \ __/ __|
+\__ \\ V  V /  __/ (_| | |_| | | | | (_| | | |_) | |_| | (__|   <  __/ |_\__ \
+|___/ \_/\_/ \___|\__,_|\__|_|_| |_|\__, | |_.__/ \__,_|\___|_|\_\___|\__|___/
+                                    |___/                                     
+
+Oh, my, what excitement!
+Finally, the moment has arrived to simply run the application... or perhaps not?
+Wait, what? Once again, the binary has mysteriously vanished into thin air?
+What are the odds? Oh, the suspense!
+
+Ha-ha-ha, just kidding!
+The truth is, it's all part of the grand plan!
+After all, where's the fun if we don't have a little mischief, right?
+
+So, this time around, it's your marvelous task to bring the wondrous UART driver to life!
+Oh, and of course, you can find the enchanting API of the driver within the magical realm of "drivers/uart.h".
+
+By the way, lucky for you, we've been extra kind and resourceful enough to acquire all the necessary datasheets.
+They reside in the wondrous directory known as "resources", awaiting your eager exploration.
+May they serve as your guiding light on this exhilarating coding escapade!
+
+Here's a reminder from the previous stage regarding the protocol:
+
+USER                                               MACHINE
+|                                                      |
+|                 HELLO OPCODE (0xaa)                  |
+|----------------------------------------------------->|
+|                                                      |
+|              NONCE (4 bytes, big-endian)             |
+|<-----------------------------------------------------|
+|                                                      |
+|      HMAC-SHA-256 (NONCE [little-endian], KEY)       |
+|----------------------------------------------------->|
+|                                                      |
+|______________________________________________________|
+
+      ____
+ ____|    \
+(____|     `._____
+ ____|       _|___
+(____|     .'
+     |____/
+
+Just a friendly reminder - that first serial output is for i/o purposes, while the second output is for the protocol.

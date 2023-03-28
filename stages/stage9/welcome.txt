@@ -1,0 +1,51 @@
+  __           _ _               _   _            _                      
+ / _| ___  ___| (_)_ __   __ _  | |_| |__   ___  | |__  _   _ _ __ _ __  
+| |_ / _ \/ _ \ | | '_ \ / _` | | __| '_ \ / _ \ | '_ \| | | | '__| '_ \ 
+|  _|  __/  __/ | | | | | (_| | | |_| | | |  __/ | |_) | |_| | |  | | | |
+|_|  \___|\___|_|_|_| |_|\__, |  \__|_| |_|\___| |_.__/ \__,_|_|  |_| |_|
+                         |___/                                           
+
+Hahaha, oh look who's here... Haven't you had enough?
+Well, well, let's see what you're made of, shall we?
+
+This time around, we need to pull off a grand spectacle, my friend.
+We have to make our legendary application perform its acrobatics on a brand-new `versatilepc` platform (yes, yes, we've had enough of the previous one).
+I'm sure you're asking yourself, "What's the big deal? Huh?" Oh, you clever little wizard, you...
+
+Well, listen up!
+The new processor has a peculiar taste - it only loads and executes the first 4KiB of the flash.
+In other words, you need to implement a primary bootloader that will be stored there and load the rest of our application.
+
+The application is, of course, our legendary application from the previous stages :)
+Here's a brief reminder of the protocol:
+
+USER                                               MACHINE
+|                                                      |
+|                 HELLO OPCODE (0xaa)                  |
+|----------------------------------------------------->|
+|                                                      |
+|              NONCE (4 bytes, big-endian)             |
+|<-----------------------------------------------------|
+|                                                      |
+|      HMAC-SHA-256 (NONCE [little-endian], KEY)       |
+|----------------------------------------------------->|
+|                                                      |
+|______________________________________________________|
+
+     _, .--.
+    (  / (  '-.
+jgs .-=-.    ) -.
+   /   (  .' .   \
+   \ ( ' ,_) ) \_/
+    (_ , /\  ,_/
+      '--\ `\--`
+         _\ _\
+         `\ \
+          _\_\
+          `\\
+            \\
+        -.'.`\.'.-
+
+Just a friendly reminder - that first serial output is for i/o purposes, while the second output is for the protocol.
+
+HINT (base64 decode): "UGxlYXNlIG5vdGUgdGhhdCB5b3Ugc2hvdWxkIG5vdCB0byBpbmFkdmVydGVudGx5IHRpY2tsZSB5b3VyIHN0YWNrIDop"

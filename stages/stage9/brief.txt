@@ -1,0 +1,1 @@
+Implementing Bootstrap [ROM bootloader] in bare-metal code

@@ -1,0 +1,37 @@
+                                      _   
+ _ __   ___    _____      _____  __ _| |_ 
+| '_ \ / _ \  / __\ \ /\ / / _ \/ _` | __|
+| | | | (_) | \__ \\ V  V /  __/ (_| | |_ 
+|_| |_|\___/  |___/ \_/\_/ \___|\__,_|\__|
+                                          
+Well, well, well, looks like you're up for another challenge!
+And this time, it's going to take some serious communication skills to get through.
+You'll need to run the program on the machine and communicate with it serially using a special `Challenge-Response` protocol. No pressure, right?
+
+Behold, the protocol in all its glory:
+
+USER                                               MACHINE
+|                                                      |
+|                 HELLO OPCODE (0xaa)                  |
+|----------------------------------------------------->|
+|                                                      |
+|              NONCE (4 bytes, big-endian)             |
+|<-----------------------------------------------------|
+|                                                      |
+|      HMAC-SHA-256 (NONCE [little-endian], KEY)       |
+|----------------------------------------------------->|
+|                                                      |
+|______________________________________________________|
+
+
+Oh, and just a heads up, the machine has 4 serial ports.
+The first port is used for i/o, the second port is for the protocol, and the other ports are not in use.
+Good luck!
+
+Oh my, before I completely forget - we really must execute the binary from address zero!
+
+|-----------------------------------------------------------------------|
+|    o   \ o /  _ o         __|    \ /     |__        o _  \ o /   o    |
+|   /|\    |     /\   ___\o   \o    |    o/    o/__   /\     |    /|\   |
+|   / \   / \   | \  /)  |    ( \  /o\  / )    |  (\  / |   / \   / \   |
+|-----------------------------------------------------------------------|

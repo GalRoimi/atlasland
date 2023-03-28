@@ -1,0 +1,59 @@
+                 _     _               _   _                           _     
+ _ __  _   _ ___| |__ (_)_ __   __ _  | |_| |__  _ __ ___  _   _  __ _| |__  
+| '_ \| | | / __| '_ \| | '_ \ / _` | | __| '_ \| '__/ _ \| | | |/ _` | '_ \ 
+| |_) | |_| \__ \ | | | | | | | (_| | | |_| | | | | | (_) | |_| | (_| | | | |
+| .__/ \__,_|___/_| |_|_|_| |_|\__, |  \__|_| |_|_|  \___/ \__,_|\__, |_| |_|
+|_|                            |___/                             |___/       
+
+Hey there! Are you prepared for an unexpected challenge that lies ahead?
+Let's dive deep into the mysterious world of reverse engineering... 
+Does it make your heart skip a beat? Hahaha, oh, it's totally justified!
+
+Um, do you remember the previous stage? (Duh... it was just a hot minute ago),
+Well, turns out our little app has a mischievous side and can pull off a mind-boggling feat — running directly on our `versatilepb` platform.
+Yep, you heard it right, no need for that ol' bootstrap jazz!
+
+Now, I bet you're dying to know, "How on earth is that even possible...?" 
+Well, my friend, we won't be revealing that juicy secret just yet.
+
+Let's see you work your magic and make this app dance on our outdated platform! 
+Frankly, I have my doubts if you'll succeed...
+
+In other words, you need to give that binary file a little makeover so it can waltz its way to compatibility.
+
+Here's a reminder from the previous stage regarding the protocol:
+
+USER                                               MACHINE
+|                                                      |
+|                 HELLO OPCODE (0xaa)                  |
+|----------------------------------------------------->|
+|                                                      |
+|              NONCE (4 bytes, big-endian)             |
+|<-----------------------------------------------------|
+|                                                      |
+|      HMAC-SHA-256 (NONCE [little-endian], KEY)       |
+|----------------------------------------------------->|
+|                                                      |
+|______________________________________________________|
+
+Get ready for a wild ride!
+
+          __  __
+      __ [_|]'_|] __
+     [_|].-'-_-_'-._]
+   _.'.'-.-''   '-.-'__
+  [_|]-.'.  '   ' .'.-_]
+ _/ /_/ '.'. ' ' .  .' -_
+[_|]_'    '.'_'_. .'  '._]
+ |_|_| = = (.-_o) = = :-_'
+[_|] _    .//\/_\.    .-_]
+  \_\_\ .'//_//_\\'. .-.
+  [_|]_`./.-/.-.-.\_'-_]
+    '.'.-'-//__.\.\\.'
+     [_|]-/.-_ .-[_\\
+      // // [_|]  \.\\
+_____//_//_________\.\\_____
+
+Just a friendly reminder - that first serial output is for i/o purposes, while the second output is for the protocol.
+
+HINT (base64 decode): "VGhlcmUgaXMgYSBjaGVjayBhdCB0aGUgYmVnaW5uaW5nIG9mIHRoZSBhcHBsaWNhdGlvbidzIGV4ZWN1dGlvbiB0aGF0IHZlcmlmaWVzIG9uIHdoaWNoIG1hY2hpbmUgaXQgaXMgYmVpbmcgcnVuLiBQYXRjaCBpdCBvdXQu"

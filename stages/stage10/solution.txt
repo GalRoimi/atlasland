@@ -1,0 +1,4 @@
+arm-none-eabi-objcopy -O binary --only-section=.text.startup feeling_the_burn feeling_the_burn.text
+printf '\x00\x00\xa0\xe1' | dd of=feeling_the_burn.text bs=1 seek=72 count=4 conv=notrunc
+
+0xe1a00000 # NOP

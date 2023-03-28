@@ -1,0 +1,57 @@
+./outputs/.bin/qemu-system-arm -M versatilepc -nographic -drive if=pflash,file=outputs/flash.img,format=raw
+
+dd if=/dev/zero of=$(OUT_DIR)/bootstrap.img bs=1K count=4
+dd if=solution/bin/bootstrap.bin of=$(OUT_DIR)/bootstrap.img conv=notrunc
+cat $(OUT_DIR)/bootstrap.img $(OUT_DIR)/$(STAGE_NAME).bin > $(OUT_DIR)/tmp.img
+dd if=/dev/zero of=$(OUT_DIR)/flash.img bs=1M count=64
+dd if=$(OUT_DIR)/tmp.img of=$(OUT_DIR)/flash.img conv=notrunc
+rm -f $(OUT_DIR)/tmp.img $(OUT_DIR)/bootstrap.img
+
+#define KiB (1024)
+
+#define BOOTSTRAP_SIZE (4 * KiB)
+#define PROG_SIZE (64 * KiB)
+
+#define LOAD_ADDR (0x00010000)
+#define BOOTSTRAP_ADDR (0x0000e000)
+#define FLASH_ADDR (0x34000000)
+#define PROG_ADDR (FLASH_ADDR + BOOTSTRAP_SIZE)
+
+void load_program(void)
+{
+    unsigned char* prog_src = (unsigned char*)PROG_ADDR;
+    unsigned char* prog_dst = (unsigned char*)LOAD_ADDR;
+
+    for (int i = 0; i < PROG_SIZE; i++) {
+        *(prog_dst + i) = *(prog_src + i);
+    }
+
+    asm volatile(
+        "LDR r0, =%0\t\n"
+        "BLX r0" :: "i"(LOAD_ADDR)
+    );
+}
+
+void relocate_bootstrap(void)
+{
+    unsigned char* bootstrap_src = (unsigned char*)LOAD_ADDR;
+    unsigned char* bootstrap_dst = (unsigned char*)BOOTSTRAP_ADDR;
+
+    for (int i = 0; i < BOOTSTRAP_SIZE; i++) {
+        *(bootstrap_dst + i) = *(bootstrap_src + i);
+    }
+
+    extern unsigned int stack_top;
+    unsigned int stack_top_relocated = ((unsigned int)&stack_top - LOAD_ADDR) + BOOTSTRAP_ADDR;
+    asm volatile("MOV sp, %0" : "=r"(stack_top_relocated));
+
+    void (*load_program_relocated)(void) = (&load_program - LOAD_ADDR) + BOOTSTRAP_ADDR;
+    load_program_relocated();
+}
+
+int main(void)
+{    
+    relocate_bootstrap();
+
+    return 0;
+}

@@ -1,0 +1,1 @@
+Implementing UART driver in bare-metal code

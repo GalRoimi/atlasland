@@ -1,0 +1,48 @@
+            _   _   _                                                      
+  __ _  ___| |_| |_(_)_ __   __ _  __      ____ _ _ __ _ __ ___   ___ _ __ 
+ / _` |/ _ \ __| __| | '_ \ / _` | \ \ /\ / / _` | '__| '_ ` _ \ / _ \ '__|
+| (_| |  __/ |_| |_| | | | | (_| |  \ V  V / (_| | |  | | | | | |  __/ |   
+ \__, |\___|\__|\__|_|_| |_|\__, |   \_/\_/ \__,_|_|  |_| |_| |_|\___|_|   
+ |___/                      |___/                                          
+
+Oh boy, oh boy!
+I hope I caught you with a big smile on your face because we're about to climb another mountain of difficulty!
+
+Seems like luck hasn't been our best friend, as our beloved app's binary has vanished into thin air once again...
+But fear not, my fearless friend, we've managed to salvage some remnants of the working environment...
+well, kind of. It's like a partial survival party!
+
+Now, it's your turn to unleash your coding wizardry and bring that PIC driver back to life!
+Oh, and of course, you can find the required API in the file "drivers/pic.h".
+
+By the way, lucky for you, we've been kind and resourceful enough to procure all the necessary datasheets just for your delightful coding endeavors.
+They can be found in the "resources" folder.
+
+Time to channel your inner techno-magician and conjure up some programming magic!
+May the debugging forces be with you!
+
+Here's a reminder from the previous stage regarding the protocol:
+
+USER                                               MACHINE
+|                                                      |
+|                 HELLO OPCODE (0xaa)                  |
+|----------------------------------------------------->|
+|                                                      |
+|              NONCE (4 bytes, big-endian)             |
+|<-----------------------------------------------------|
+|                                                      |
+|      HMAC-SHA-256 (NONCE [little-endian], KEY)       |
+|----------------------------------------------------->|
+|                                                      |
+|______________________________________________________|
+
+        _    .  ,   .           .
+    *  / \_ *  / \_      _  *        *   /\'__        *
+      /    \  /    \,   ((        .    _/  /  \  *'.
+ .   /\/\  /\/ :' __ \_  `          _^/  ^/    `--.
+    /    \/  \  _/  \-'\      *    /.' ^_   \_   .'\  *
+  /\  .-   `. \/     \ /==~=-=~=-=-;.  _/ \ -. `_/   \
+ /  `-.__ ^   / .-'.--\ =-=~_=-=~=^/  _ `--./ .-'  `-
+/        `.  / /       `.~-^=-=~=^=.-'      '-._ `._
+
+Just a friendly reminder - that first serial output is for i/o purposes, while the second output is for the protocol.
